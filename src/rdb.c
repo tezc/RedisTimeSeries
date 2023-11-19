@@ -26,6 +26,8 @@ void *series_rdb_load(RedisModuleIO *io, int encver) {
     timestamp_t lastTimestamp = 0;
     uint64_t totalSamples = 0;
     DuplicatePolicy duplicatePolicy = DP_NONE;
+    long long ignoreMaxTimeDiff = 0;
+    double ignoreMaxValDiff = 0.0;
     RedisModuleString *srcKey = NULL;
     Series *series = NULL;
     RedisModuleString *destKey = NULL;
@@ -52,6 +54,10 @@ void *series_rdb_load(RedisModuleIO *io, int encver) {
         totalSamples = LoadUnsigned_IOError(io, goto err);
         if (encver >= TS_IS_RESSETED_DUP_POLICY_RDB_VER) {
             duplicatePolicy = LoadUnsigned_IOError(io, goto err);
+        }
+        if (encver >= TS_IGNORE_VER) {
+            ignoreMaxTimeDiff = LoadUnsigned_IOError(io, goto err);
+            ignoreMaxValDiff = LoadDouble_IOError(io, goto err);
         }
         uint64_t hasSrcKey = LoadUnsigned_IOError(io, goto err);
         if (hasSrcKey) {
@@ -132,6 +138,8 @@ void *series_rdb_load(RedisModuleIO *io, int encver) {
         series->lastTimestamp = lastTimestamp;
         series->lastValue = lastValue;
         series->lastChunk = chunk;
+        series->ignoreMaxTimeDiff = ignoreMaxTimeDiff;
+        series->ignoreMaxValDiff = ignoreMaxValDiff;
     }
 
     return series;
@@ -190,6 +198,8 @@ void series_rdb_save(RedisModuleIO *io, void *value) {
     RedisModule_SaveDouble(io, series->lastValue);
     RedisModule_SaveUnsigned(io, series->totalSamples);
     RedisModule_SaveUnsigned(io, series->duplicatePolicy);
+    RedisModule_SaveUnsigned(io, series->ignoreMaxTimeDiff);
+    RedisModule_SaveDouble(io, series->ignoreMaxValDiff);
     if ((series->srcKey != NULL) && (should_save_cross_references(series))) {
         // on dump command (restore) we don't keep the cross references
         RedisModule_SaveUnsigned(io, TRUE);

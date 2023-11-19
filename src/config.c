@@ -201,6 +201,31 @@ int ReadConfig(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         extern bool _dontAssertOnFailiure;
         _dontAssertOnFailiure = TSGlobalConfig.dontAssertOnFailiure;
     }
+
+    TSGlobalConfig.ignoreMaxTimeDiff = 0;
+    if (argc > 1 && RMUtil_ArgIndex("IGNORE_MAX_TIME_DIFF", argv, argc) >= 0) {
+        long long ignoreMaxTimeDiff = 0;
+        if (RMUtil_ParseArgsAfter(
+                "IGNORE_MAX_TIME_DIFF", argv, argc, "l", &ignoreMaxTimeDiff) !=
+            REDISMODULE_OK) {
+            RedisModule_Log(
+                ctx, "warning", "Unable to parse argument after IGNORE_MAX_TIME_DIFF");
+            return TSDB_ERROR;
+        }
+    }
+
+    TSGlobalConfig.ignoreMaxValDiff = 0.0;
+    if (argc > 1 && RMUtil_ArgIndex("IGNORE_MAX_VAL_DIFF", argv, argc) >= 0) {
+        double ignoreMaxTimeDiff = 0;
+        if (RMUtil_ParseArgsAfter(
+                "IGNORE_MAX_VAL_DIFF", argv, argc, "f", &ignoreMaxTimeDiff) !=
+            REDISMODULE_OK) {
+            RedisModule_Log(
+                ctx, "warning", "Unable to parse argument after IGNORE_MAX_VAL_DIFF");
+            return TSDB_ERROR;
+        }
+    }
+
     RedisModule_Log(ctx,
                     "notice",
                     "Setting default series ENCODING to: %s",

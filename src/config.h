@@ -24,6 +24,8 @@ typedef struct
     bool forceSaveCrossRef;    // Internal debug configuration param
     char *password;            // tls password which used by libmr
     bool dontAssertOnFailiure; // Internal debug configuration param
+    long long ignoreMaxTimeDiff;
+    double ignoreMaxValDiff;
 } TSConfig;
 
 extern TSConfig TSGlobalConfig;

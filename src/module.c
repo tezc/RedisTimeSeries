@@ -34,6 +34,7 @@
 #include <string.h>
 #include <strings.h>
 #include <time.h>
+#include <math.h>
 
 #ifndef REDISTIMESERIES_GIT_SHA
 #define REDISTIMESERIES_GIT_SHA "unknown"
@@ -61,9 +62,9 @@ int TSDB_info(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
 
     int is_debug = RMUtil_ArgExists("DEBUG", argv, argc, 1);
     if (is_debug) {
-        RedisModule_ReplyWithMapOrArray(ctx, 14 * 2, true);
+        RedisModule_ReplyWithMapOrArray(ctx, 16 * 2, true);
     } else {
-        RedisModule_ReplyWithMapOrArray(ctx, 12 * 2, true);
+        RedisModule_ReplyWithMapOrArray(ctx, 14 * 2, true);
     }
 
     long long skippedSamples;
@@ -91,6 +92,11 @@ int TSDB_info(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
     } else {
         RedisModule_ReplyWithNull(ctx);
     }
+
+    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxTimeDiff");
+    RedisModule_ReplyWithLongLong(ctx, series->ignoreMaxTimeDiff);
+    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxValDiff");
+    RedisModule_ReplyWithDouble(ctx, series->ignoreMaxValDiff);
 
     RedisModule_ReplyWithSimpleString(ctx, "labels");
     ReplyWithSeriesLabels(ctx, series);
@@ -505,8 +511,26 @@ static int internalAdd(RedisModuleCtx *ctx,
         return REDISMODULE_ERR;
     }
 
+    // Use module level configuration if key level configuration doesn't exists
+    DuplicatePolicy dp_policy;
+    if (dp_override != DP_NONE) {
+        dp_policy = dp_override;
+    } else if (series->duplicatePolicy != DP_NONE) {
+        dp_policy = series->duplicatePolicy;
+    } else {
+        dp_policy = TSGlobalConfig.duplicatePolicy;
+    }
+
+    if (dp_policy == DP_LAST && series->srcKey == NULL &&
+        timestamp >= series->lastTimestamp &&
+        timestamp - series->lastTimestamp <= series->ignoreMaxTimeDiff &&
+        fabs(value - series->lastValue) <= series->ignoreMaxValDiff) {
+        RedisModule_ReplyWithLongLong(ctx, series->lastTimestamp);
+        return REDISMODULE_ERR;
+    }
+
     if (timestamp <= series->lastTimestamp && series->totalSamples != 0) {
-        if (SeriesUpsertSample(series, timestamp, value, dp_override) != REDISMODULE_OK) {
+        if (SeriesUpsertSample(series, timestamp, value, dp_policy) != REDISMODULE_OK) {
             RTS_ReplyGeneralError(ctx,
                                   "TSDB: Error at upsert, update is not supported when "
                                   "DUPLICATE_POLICY is set to BLOCK mode");
