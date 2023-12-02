@@ -31,11 +31,8 @@ Defaults.terminate_retries_secs = 1
 
 
 def Env(*args, **kwargs):
-
     if 'testName' not in kwargs:
        kwargs['testName'] = '%s.%s' % (inspect.currentframe().f_back.f_globals["__name__"], inspect.currentframe().f_back.f_code.co_name)
-    print("ozanx ", kwargs['testName'])
-
     env = rltestEnv(*args, terminateRetries=3, terminateRetrySecs=1, **kwargs)
     if not RLEC_CLUSTER:
         for shard in range(0, env.shardsCount):

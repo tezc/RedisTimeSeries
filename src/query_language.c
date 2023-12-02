@@ -166,6 +166,7 @@ int parseCreateArgs(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, Cre
     }
 
     cCtx->ignoreMaxTimeDiff = 0;
+    cCtx->ignoreMaxValDiff = 0;
     int idx = RMUtil_ArgIndex("IGNORE", argv, argc);
     if (idx > 0) {
         long long ignoreMaxTimeDiff;
