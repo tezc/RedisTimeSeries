@@ -113,26 +113,26 @@ def test_ignore_madd():
     r = e.getClusterConnectionIfNeeded()
 
     try:
-        r.execute_command('TS.CREATE', 'key1', 'IGNORE', '5', '5', 'DUPLICATE_POLICY', 'LAST')
-        r.execute_command('TS.CREATE', 'key2')
-        r.execute_command('TS.MADD', 'key1', '1000', '1', 'key2', '1000', '1')
-        r.execute_command('TS.MADD', 'key1', '1001', '2', 'key2', '1001', '2')
-        r.execute_command('TS.MADD', 'key1', '1006', '3', 'key2', '1006', '3')
-        r.execute_command('TS.MADD', 'key1', '1007', '8', 'key2', '1007', '8')
-        r.execute_command('TS.MADD', 'key1', '1008', '10', 'key2', '1008', '10')
-        r.execute_command('TS.MADD', 'key1', '1009', '15.0001', 'key2', '1009', '15.0001')
+        r.execute_command('TS.CREATE', '{tag}key1', 'IGNORE', '5', '5', 'DUPLICATE_POLICY', 'LAST')
+        r.execute_command('TS.CREATE', '{tag}key2')
+        r.execute_command('TS.MADD', '{tag}key1', '1000', '1', '{tag}key2', '1000', '1')
+        r.execute_command('TS.MADD', '{tag}key1', '1001', '2', '{tag}key2', '1001', '2')
+        r.execute_command('TS.MADD', '{tag}key1', '1006', '3', '{tag}key2', '1006', '3')
+        r.execute_command('TS.MADD', '{tag}key1', '1007', '8', '{tag}key2', '1007', '8')
+        r.execute_command('TS.MADD', '{tag}key1', '1008', '10', '{tag}key2', '1008', '10')
+        r.execute_command('TS.MADD', '{tag}key1', '1009', '15.0001', '{tag}key2', '1009', '15.0001')
 
         expected = [[1000, b'1'], [1006, b'3'], [1008, b'10'], [1009, b'15.0001']]
-        actual = r.execute_command('TS.range', 'key1', 0, '+')
+        actual = r.execute_command('TS.range', '{tag}key1', 0, '+')
         assert actual == expected
 
         expected = [[1000, b'1'], [1001, b'2'], [1006, b'3'], [1007, b'8'],
                     [1008, b'10'], [1009, b'15.0001']]
-        actual = r.execute_command('TS.range', 'key2', 0, '+')
+        actual = r.execute_command('TS.range', '{tag}key2', 0, '+')
         assert actual == expected
 
-        assert r.execute_command('TS.MADD', 'key1', '1010', '15.0001', 'key2', '1010', '16.0') == [1009, 1010]
-        assert r.execute_command('TS.ADD', 'key1', '1012', '16') == 1009
+        assert r.execute_command('TS.MADD', '{tag}key1', '1010', '15.0001', '{tag}key2', '1010', '16.0') == [1009, 1010]
+        assert r.execute_command('TS.ADD', '{tag}key1', '1012', '16') == 1009
 
     finally:
         e.stop()
