@@ -165,8 +165,8 @@ int parseCreateArgs(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, Cre
         goto err_exit;
     }
 
-    cCtx->ignoreMaxTimeDiff = 0;
-    cCtx->ignoreMaxValDiff = 0;
+    cCtx->ignoreMaxTimeDiff = TSGlobalConfig.ignoreMaxTimeDiff;
+    cCtx->ignoreMaxValDiff = TSGlobalConfig.ignoreMaxValDiff;
     int idx = RMUtil_ArgIndex("IGNORE", argv, argc);
     if (idx > 0) {
         long long ignoreMaxTimeDiff;
@@ -175,6 +175,11 @@ int parseCreateArgs(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, Cre
         if (idx + 2 >= argc ||
             RMUtil_ParseArgs(argv, argc, idx + 1, "ld", &ignoreMaxTimeDiff, &ignoreMaxValDiff) != REDISMODULE_OK) {
             RTS_ReplyGeneralError(ctx, "TSDB: Couldn't parse IGNORE");
+            goto err_exit;
+        }
+
+        if (ignoreMaxTimeDiff < 0  || ignoreMaxValDiff < 0) {
+            RTS_ReplyGeneralError(ctx, "TSDB: IGNORE parameters cannot be negative");
             goto err_exit;
         }
 

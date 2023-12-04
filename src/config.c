@@ -212,19 +212,39 @@ int ReadConfig(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
                 ctx, "warning", "Unable to parse argument after IGNORE_MAX_TIME_DIFF");
             return TSDB_ERROR;
         }
+        if (ignoreMaxTimeDiff < 0) {
+            RedisModule_Log(
+                ctx, "warning", "IGNORE_MAX_TIME_DIFF config cannot be negative!");
+            return TSDB_ERROR;
+        }
+        TSGlobalConfig.ignoreMaxTimeDiff = ignoreMaxTimeDiff;
     }
+    RedisModule_Log(ctx,
+                    "notice",
+                    "loaded default IGNORE_MAX_TIME_DIFF: %lld",
+                    TSGlobalConfig.ignoreMaxTimeDiff);
 
     TSGlobalConfig.ignoreMaxValDiff = 0.0;
     if (argc > 1 && RMUtil_ArgIndex("IGNORE_MAX_VAL_DIFF", argv, argc) >= 0) {
-        double ignoreMaxTimeDiff = 0;
+        double ignoreMaxValDiff = 0;
         if (RMUtil_ParseArgsAfter(
-                "IGNORE_MAX_VAL_DIFF", argv, argc, "f", &ignoreMaxTimeDiff) !=
+                "IGNORE_MAX_VAL_DIFF", argv, argc, "d", &ignoreMaxValDiff) !=
             REDISMODULE_OK) {
             RedisModule_Log(
                 ctx, "warning", "Unable to parse argument after IGNORE_MAX_VAL_DIFF");
             return TSDB_ERROR;
         }
+        if (ignoreMaxValDiff < 0) {
+            RedisModule_Log(
+                ctx, "warning", "IGNORE_MAX_VAL_DIFF config cannot be negative!");
+            return TSDB_ERROR;
+        }
+        TSGlobalConfig.ignoreMaxValDiff = ignoreMaxValDiff;
     }
+    RedisModule_Log(ctx,
+                    "notice",
+                    "loaded default IGNORE_MAX_VAL_DIFF: %f",
+                    TSGlobalConfig.ignoreMaxValDiff);
 
     RedisModule_Log(ctx,
                     "notice",

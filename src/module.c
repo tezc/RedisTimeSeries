@@ -796,6 +796,12 @@ int TSDB_alter(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         series->labelsCount = cCtx.labelsCount;
         IndexMetric(keyName, series->labels, series->labelsCount);
     }
+
+    if (RMUtil_ArgIndex("IGNORE", argv, argc) > 0) {
+        series->ignoreMaxTimeDiff = cCtx.ignoreMaxTimeDiff;
+        series->ignoreMaxValDiff = cCtx.ignoreMaxValDiff;
+    }
+
     RedisModule_ReplyWithSimpleString(ctx, "OK");
     RedisModule_ReplicateVerbatim(ctx);
     RedisModule_CloseKey(key);
