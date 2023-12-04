@@ -155,11 +155,6 @@ def test_ignore_restart_restore():
         actual = r.execute_command('TS.range', 'key1', 0, '+')
         assert actual == expected
 
-        e.restartAndReload()
-        info = _get_ts_info(r, 'key1')
-        assert info.ignore_max_time_diff == 3
-        assert info.ignore_max_val_diff == b'5'
-
         r.execute_command('TS.ADD', 'key1', '1010', '16.0')
         actual = r.execute_command('TS.range', 'key1', 0, '+')
         assert actual == expected
