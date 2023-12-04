@@ -45,6 +45,10 @@ def test_ignore_create():
     r = e.getClusterConnectionIfNeeded()
 
     try:
+        # Verify [0, 0] can be added when insert filter is not set
+        r.execute_command('TS.ADD', 'key0', '0', '0')
+        assert r.execute_command('TS.range', 'key0', 0, '+') == [[0, b'0']]
+
         r.execute_command('TS.CREATE', 'key1', 'IGNORE', '5', '5', 'DUPLICATE_POLICY', 'LAST')
         r.execute_command('TS.ADD', 'key1', '1000', '1')
         r.execute_command('TS.ADD', 'key1', '1001', '2')

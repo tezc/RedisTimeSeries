@@ -28,7 +28,6 @@ def test_resp3(env):
             b'memoryUsage': 514, b'firstTimestamp': 1, b'lastTimestamp': 1000,
             b'retentionTime': 0, b'chunkCount': 2, b'chunkSize': 128,
             b'chunkType': b'compressed', b'duplicatePolicy': None,
-            b'ignoreMaxTimeDiff': 0, b'ignoreMaxValDiff': 0.0,
             b'labels': {b'name': b'mush'},
             b'sourceKey': None,
             b'rules': {b't2{1}': [10, b'COUNT', 0]},
@@ -49,7 +48,8 @@ def test_resp3(env):
                         b'size': 128,
                         b'bytesPerSample': 0.2612244784832001
                     }
-                ]
+                ],
+            b'ignoreMaxTimeDiff': 0, b'ignoreMaxValDiff': 0.0,
         }
         res = r1.execute_command('ts.mget', 'FILTER', 'name=mush')
         assert res == {b't1{1}': [{}, [1000, 5.0]],

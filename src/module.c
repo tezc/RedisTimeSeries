@@ -93,11 +93,6 @@ int TSDB_info(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         RedisModule_ReplyWithNull(ctx);
     }
 
-    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxTimeDiff");
-    RedisModule_ReplyWithLongLong(ctx, series->ignoreMaxTimeDiff);
-    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxValDiff");
-    RedisModule_ReplyWithDouble(ctx, series->ignoreMaxValDiff);
-
     RedisModule_ReplyWithSimpleString(ctx, "labels");
     ReplyWithSeriesLabels(ctx, series);
 
@@ -128,6 +123,11 @@ int TSDB_info(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         ruleCount++;
     }
     RedisModule_ReplySetMapOrArrayLength(ctx, ruleCount, false);
+
+    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxTimeDiff");
+    RedisModule_ReplyWithLongLong(ctx, series->ignoreMaxTimeDiff);
+    RedisModule_ReplyWithSimpleString(ctx, "ignoreMaxValDiff");
+    RedisModule_ReplyWithDouble(ctx, series->ignoreMaxValDiff);
 
     if (is_debug) {
         RedisModuleDictIter *iter = RedisModule_DictIteratorStartC(series->chunks, ">", "", 0);

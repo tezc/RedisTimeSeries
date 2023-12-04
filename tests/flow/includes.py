@@ -32,7 +32,17 @@ Defaults.terminate_retries_secs = 1
 
 def Env(*args, **kwargs):
     if 'testName' not in kwargs:
-        kwargs['testName'] = '%s.%s' % (inspect.getmodule(inspect.currentframe().f_back).__name__, inspect.currentframe().f_back.f_code.co_name)
+       kwargs['testName'] = '%s.%s' % (inspect.currentframe().f_back.f_globals["__name__"], inspect.currentframe().f_back.f_code.co_name)
+
+    if 'module' not in kwargs:
+        kwargs['module'] = '/home/ozan/Desktop/redistimeseries/bin/linux-x64-release/redistimeseries.so'
+
+    if 'redisBinaryPath' not in kwargs:
+        kwargs['redisBinaryPath'] = '/home/ozan/Desktop/redis/src/redis-server'
+
+    if 'logDir' not in kwargs:
+        kwargs['logDir'] = '/home/ozan/Desktop/redistimeseries/tests/flow/logs'
+
     env = rltestEnv(*args, terminateRetries=3, terminateRetrySecs=1, **kwargs)
     if not RLEC_CLUSTER:
         for shard in range(0, env.shardsCount):

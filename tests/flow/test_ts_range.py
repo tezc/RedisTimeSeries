@@ -1063,9 +1063,8 @@ def test_sanity():
             b'firstTimestamp', start_ts, b'chunkCount', 1,
             b'labels', [[b'name', b'brown'], [b'color', b'pink']],
             b'lastTimestamp', start_ts + samples_count - 1,
-            b'ignoreMaxTimeDiff', 0, b'ignoreMaxValDiff', b'0',
             b'chunkSize', 1024, b'retentionTime', 0,
-            b'sourceKey', None, b'rules', []]
+            b'sourceKey', None, b'rules', [], b'ignoreMaxTimeDiff', 0, b'ignoreMaxValDiff', b'0']
         assert TSInfo(expected_result) == _get_ts_info(r, 'tester')
 
 

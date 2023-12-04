@@ -180,7 +180,7 @@ int parseCreateArgs(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, Cre
         }
 
         if (ignoreMaxTimeDiff < 0 || ignoreMaxValDiff < 0) {
-            RTS_ReplyGeneralError(ctx, "TSDB: IGNORE parameters cannot be negative");
+            RTS_ReplyGeneralError(ctx, "TSDB: IGNORE arguments cannot be negative");
             goto err_exit;
         }
 
