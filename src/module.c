@@ -521,7 +521,7 @@ static int internalAdd(RedisModuleCtx *ctx,
         dp_policy = TSGlobalConfig.duplicatePolicy;
     }
 
-    if (dp_policy == DP_LAST && series->srcKey == NULL &&
+    if (dp_policy == DP_LAST && series->srcKey == NULL && series->totalSamples != 0 &&
         timestamp >= series->lastTimestamp &&
         timestamp - series->lastTimestamp <= series->ignoreMaxTimeDiff &&
         fabs(value - series->lastValue) <= series->ignoreMaxValDiff) {
