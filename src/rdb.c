@@ -61,6 +61,11 @@ void *series_rdb_load(RedisModuleIO *io, int encver) {
         }
     }
 
+    if (encver >= TS_CREATE_IGNORE_VER) {
+        ignoreMaxTimeDiff = LoadUnsigned_IOError(io, goto err);
+        ignoreMaxValDiff = LoadDouble_IOError(io, goto err);
+    }
+
     cCtx.labelsCount = LoadUnsigned_IOError(io, goto err);
     cCtx.labels = calloc(cCtx.labelsCount, sizeof(Label));
     for (int i = 0; i < cCtx.labelsCount; i++) {
@@ -97,11 +102,6 @@ void *series_rdb_load(RedisModuleIO *io, int encver) {
             goto err;
         }
         lastRule = rule;
-    }
-
-    if (encver >= TS_CREATE_IGNORE_VER) {
-        ignoreMaxTimeDiff = LoadUnsigned_IOError(io, goto err);
-        ignoreMaxValDiff = LoadDouble_IOError(io, goto err);
     }
 
     if (encver < TS_SIZE_RDB_VER) {
@@ -207,6 +207,9 @@ void series_rdb_save(RedisModuleIO *io, void *value) {
         RedisModule_SaveUnsigned(io, FALSE);
     }
 
+    RedisModule_SaveUnsigned(io, series->ignoreMaxTimeDiff);
+    RedisModule_SaveDouble(io, series->ignoreMaxValDiff);
+
     RedisModule_SaveUnsigned(io, series->labelsCount);
     for (int i = 0; i < series->labelsCount; i++) {
         RedisModule_SaveString(io, series->labels[i].key);
@@ -230,9 +233,6 @@ void series_rdb_save(RedisModuleIO *io, void *value) {
         // on dump command (restore) we don't keep the cross references
         RedisModule_SaveUnsigned(io, 0);
     }
-
-    RedisModule_SaveUnsigned(io, series->ignoreMaxTimeDiff);
-    RedisModule_SaveDouble(io, series->ignoreMaxValDiff);
 
     Chunk_t *chunk;
     uint64_t numChunks = RedisModule_DictSize(series->chunks);
